@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -115,7 +116,8 @@ int main(void)
 		fillHidInputBuffer();
 		fillHidInputReport();
 		sendHidReport();
-
+		// Temporary debouncing delay
+		LL_mDelay(20);	// delay 20 ms
 		// End of if, reset timer1_interrupt state to 0!
 		timer1_interrupt = 0;
 	  }
@@ -186,7 +188,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 4800;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 10000 - 1;
+  htim1.Init.Period = 1000 - 1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
