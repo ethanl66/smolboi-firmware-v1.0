@@ -1,0 +1,10 @@
+../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_ll_gpio.h:757:26:LL_GPIO_IsInputPinSet	1
+../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_ll_gpio.h:838:22:LL_GPIO_SetOutputPin	1
+../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_ll_gpio.h:867:22:LL_GPIO_ResetOutputPin	1
+../Core/Src/keyboard.c:13:6:print_imgay	1
+../Core/Src/keyboard.c:59:9:scanMatrix	5
+../Core/Src/keyboard.c:98:9:scanMatrixTest	2
+../Core/Src/keyboard.c:140:9:isModifierKey	9
+../Core/Src/keyboard.c:153:6:fillHidInputBuffer	9
+../Core/Src/keyboard.c:201:6:fillHidInputReport	2
+../Core/Src/keyboard.c:208:6:sendHidReport	1
