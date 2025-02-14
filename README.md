@@ -14,11 +14,12 @@ PCB files can be found [here](https://github.com/ethanl66/smol-boi).
 
 - Matrix scanning to detect key presses and key releases
 - Generates HID Input Report packets and sends through USB to computer
+- Primitive debouncing
 
 Currently in development:
 - Multilayered keymaps
-- Debouncing algorithm
-- Auto-repeat mechanism
+- More advanced debouncing algorithm
+- Explicit auto-repeat mechanism
 
 ## Acknowledgments
 
