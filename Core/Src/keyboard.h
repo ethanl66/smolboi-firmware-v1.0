@@ -52,7 +52,7 @@ static uint8_t HID_input_buffer[8] = {0};		// Buffer to store matrix scan result
 	void fillHidInputReport();
 	void sendHidReport();
 
-	void print_imgay();
+	void print_test_msg();
 
 	// Scan matrix once and populate matrix_scan_result
 	uint8_t scanMatrix();	// Returns 0 if no keys pressed and 1 if at least 1 key pressed

@@ -10,7 +10,7 @@
 
 #include "keyboard.h"
 
-void print_imgay() {
+void print_test_msg() {
 	  // Press 'I'
 	  HID_input_report[0] = 0x02;	// L-shift
 	  HID_input_report[2] = KEY_I;	// 'I'
@@ -35,10 +35,10 @@ void print_imgay() {
 	  USBD_HID_SendReport(&hUsbDeviceFS, HID_input_report, 8);
 	  HAL_Delay(15);
 
-	  // Press ' gay.'
+	  // Press ' key.'
 	  HID_input_report[2] = KEY_SPACE;
-	  HID_input_report[3] = KEY_G;
-	  HID_input_report[4] = KEY_A;
+	  HID_input_report[3] = KEY_K;
+	  HID_input_report[4] = KEY_E;
 	  HID_input_report[5] = KEY_Y;
 	  HID_input_report[6] = KEY_PERIOD;
 	  USBD_HID_SendReport(&hUsbDeviceFS, HID_input_report, 8);
