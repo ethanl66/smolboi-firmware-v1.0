@@ -8,7 +8,7 @@ This repository contains the firmware for the smolboi V1.0 PCB with an STM32F072
 ## Description
 
 Smol Boi is a custom personal 40% keyboard PCB designed to provide a compact and efficient layout. This repository contains the firmware required for the keyboard to function.
-PCB files can be found at [here](https://github.com/ethanl66/smol-boi)
+PCB files can be found [here](https://github.com/ethanl66/smol-boi)
 
 ## Features
 
