@@ -55,7 +55,7 @@ static uint8_t HID_input_buffer[8] = {0};		// Buffer to store matrix scan result
 	void print_test_msg();
 
 	// Scan matrix once and populate matrix_scan_result
-	uint8_t scanMatrix();	// Returns 0 if no keys pressed and 1 if at least 1 key pressed
+	uint8_t scanMatrix();	// Returns 0 if no keys pressed, 1 if at least 1 key pressed
 	uint8_t scanMatrixTest();	// Toggles col 0 1 second at a time and manually reads from rows
 
 	uint8_t individualKeyTest();

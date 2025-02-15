@@ -60,7 +60,7 @@ uint8_t scanMatrix() {
 
 	uint8_t col;
 	uint8_t row;
-	uint8_t key_pressed = 0;
+	uint8_t key_pressed = 0;	// 0: no key pressed at all. 1: any key pressed
 
 	// For scanning
 	uint32_t current_row_state;
@@ -137,15 +137,11 @@ uint8_t scanMatrixTest() {
 	return key_pressed;
 }
 
-uint8_t isModifierKey(uint8_t key) { 
-	if (key == KEY_RIGHT_GUI ||
-		key == KEY_RIGHT_ALT ||
-		key == KEY_RIGHT_SHIFT ||
-		key == KEY_RIGHT_CTRL ||
-		key == KEY_LEFT_GUI ||
-		key == KEY_LEFT_ALT ||
-		key == KEY_LEFT_SHIFT ||
-		key == KEY_LEFT_CTRL  ) {
+uint8_t isModifierKey(uint8_t row, uint8_t col) {
+	if (	(row == 3 && col == 0) ||
+			(row == 3 && col == 1) ||
+			(row == 3 && col == 2) ||
+			(row == 2 && col == 0)	) {
 		return 1;
 	}
 	return 0;
@@ -158,8 +154,8 @@ void fillHidInputBuffer() {
 	for (row = 0; row < NUM_ROWS; row++) {
 		for (col = 0; col < NUM_COLS; col++) {
 
-			current_key = usb_keymap_layer1[row][col];
-			if (count >= 6) {
+			current_key = usb_keymap_layer1[row][col];	// Current key to be checked
+			if (count >= 6) {							// If buffer overflow
 				HID_input_buffer[2] = KEY_ERR_OVF;
 				HID_input_buffer[3] = KEY_ERR_OVF;
 				HID_input_buffer[4] = KEY_ERR_OVF;
@@ -168,10 +164,10 @@ void fillHidInputBuffer() {
 				HID_input_buffer[7] = KEY_ERR_OVF;
 				return;
 			}
-			if (matrix_scan_result[row][col] == 1 && count < 6) {
+			if (matrix_scan_result[row][col] == 1 && count < 6) {	// If key is pressed and buffer not full
 
 					// Current key down is modifier key
-				if (isModifierKey(current_key)) {
+				if (isModifierKey(row, col)) {
 					mod_key_pressed_at_all = 1;		// Mark that a mod key was pressed
 					HID_input_buffer[0] = current_key;
 				} else {
