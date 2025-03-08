@@ -5,6 +5,7 @@
 ../Core/Src/keyboard.c:59:9:scanMatrix	5
 ../Core/Src/keyboard.c:98:9:scanMatrixTest	2
 ../Core/Src/keyboard.c:140:9:isModifierKey	9
-../Core/Src/keyboard.c:149:6:fillHidInputBuffer	9
-../Core/Src/keyboard.c:197:6:fillHidInputReport	2
-../Core/Src/keyboard.c:204:6:sendHidReport	1
+../Core/Src/keyboard.c:159:9:isFnKey	4
+../Core/Src/keyboard.c:168:6:fillHidInputBuffer	10
+../Core/Src/keyboard.c:221:6:fillHidInputReport	2
+../Core/Src/keyboard.c:228:6:sendHidReport	1

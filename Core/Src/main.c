@@ -116,8 +116,9 @@ int main(void)
 		fillHidInputBuffer();
 		fillHidInputReport();
 		sendHidReport();
-		// Temporary debouncing delay
+		// Temporary debouncing delay?
 		LL_mDelay(20);	// delay 20 ms
+
 		// End of if, reset timer1_interrupt state to 0!
 		timer1_interrupt = 0;
 	  }

@@ -146,16 +146,39 @@ uint8_t isModifierKey(uint8_t row, uint8_t col) {
 	}
 	return 0;
 }
+
+//uint8_t isFnKey(uint8_t *scan_result) {
+//
+//	if (scan_result[3 * NUM_ROWS + 3] == 1 || scan_result[3 * NUM_ROWS + 7] == 1) {
+//		return 1;	// fn up
+//	} else if (scan_result[3 * NUM_ROWS + 4] == 1) {
+//		return 2;	// fn down
+//	}
+//	return 0;
+//}
+uint8_t isFnKey(uint8_t scan_result[NUM_ROWS][NUM_COLS]) {
+	if (scan_result[3][3] == 1 || scan_result[3][7] == 1) {
+			return 1;	// fn up
+		} else if (scan_result[3][4] == 1) {
+			return 2;	// fn down
+		}
+		return 0;
+}
+
 void fillHidInputBuffer() {
-	int row, col;
+	int i, j;
+	uint8_t fn;
 	int count = 0;
 	uint8_t current_key, mod_key_pressed_at_all = 0, norm_key_pressed_at_all = 0;
 
-	for (row = 0; row < NUM_ROWS; row++) {
-		for (col = 0; col < NUM_COLS; col++) {
+	fn = isFnKey(matrix_scan_result);	// 0 if no fn key, 1 if fn up, 2 if fn down
+	int row_offset = (fn == 1) ? 4 : (fn == 2) ? 8 : 0;
 
-			current_key = usb_keymap_layer1[row][col];	// Current key to be checked
-			if (count >= 6) {							// If buffer overflow
+	for (i = 0; i < NUM_ROWS; i++) {
+		for (j = 0; j < NUM_COLS; j++) {
+
+			current_key = usb_keymap[row_offset + i][j];		// Current key to be checked
+			if (count >= 6) {						// If buffer overflow
 				HID_input_buffer[2] = KEY_ERR_OVF;
 				HID_input_buffer[3] = KEY_ERR_OVF;
 				HID_input_buffer[4] = KEY_ERR_OVF;
@@ -164,21 +187,21 @@ void fillHidInputBuffer() {
 				HID_input_buffer[7] = KEY_ERR_OVF;
 				return;
 			}
-			if (matrix_scan_result[row][col] == 1 && count < 6) {	// If key is pressed and buffer not full
 
-					// Current key down is modifier key
-				if (isModifierKey(row, col)) {
+			// Key is pressed and buffer not full
+			if (matrix_scan_result[i][j] == 1) {
+
+				if (isModifierKey(j, j)) {
 					mod_key_pressed_at_all = 1;		// Mark that a mod key was pressed
 					HID_input_buffer[0] = current_key;
 				} else {
 					// Current key down is normal key
-					norm_key_pressed_at_all = 1;		// Mark that a mod key was pressed
+					norm_key_pressed_at_all = 1;		// Mark that a normal key was pressed
 					HID_input_buffer[2 + count] = current_key;
+					count++;
 				}
-				count++;
-
 			}
-
+			// No keys pressed
 			if (!mod_key_pressed_at_all) {
 				HID_input_buffer[0] = 0;
 			}
@@ -190,6 +213,7 @@ void fillHidInputBuffer() {
 				HID_input_buffer[6] = 0;
 				HID_input_buffer[7] = 0;
 			}
+
 		}
 	}
 }
