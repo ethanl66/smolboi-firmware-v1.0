@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "keyboard.h"	// Includes gpio_define.h and usb_keycodes_define.h
+//#include "keyboard.c"	// Includes gpio_define.h and usb_keycodes_define.h
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -116,8 +116,9 @@ int main(void)
 		fillHidInputBuffer();
 		fillHidInputReport();
 		sendHidReport();
-		// Temporary debouncing delay
+		// Temporary debouncing delay?
 		LL_mDelay(20);	// delay 20 ms
+
 		// End of if, reset timer1_interrupt state to 0!
 		timer1_interrupt = 0;
 	  }

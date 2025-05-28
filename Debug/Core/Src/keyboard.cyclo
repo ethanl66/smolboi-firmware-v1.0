@@ -4,7 +4,10 @@
 ../Core/Src/keyboard.c:13:6:print_test_msg	1
 ../Core/Src/keyboard.c:59:9:scanMatrix	5
 ../Core/Src/keyboard.c:98:9:scanMatrixTest	2
-../Core/Src/keyboard.c:140:9:isModifierKey	9
-../Core/Src/keyboard.c:153:6:fillHidInputBuffer	9
-../Core/Src/keyboard.c:201:6:fillHidInputReport	2
-../Core/Src/keyboard.c:208:6:sendHidReport	1
+../Core/Src/keyboard.c:140:9:isModKey	6
+../Core/Src/keyboard.c:167:9:isFnKey	5
+../Core/Src/keyboard.c:179:9:capsWord	10
+../Core/Src/keyboard.c:209:9:keyLock	10
+../Core/Src/keyboard.c:244:6:fillHidInputBuffer	24
+../Core/Src/keyboard.c:371:6:fillHidInputReport	2
+../Core/Src/keyboard.c:378:6:sendHidReport	1

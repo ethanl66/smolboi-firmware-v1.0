@@ -60,7 +60,7 @@ uint8_t scanMatrix() {
 
 	uint8_t col;
 	uint8_t row;
-	uint8_t key_pressed = 0;
+	uint8_t key_pressed = 0;	// 0: no key pressed at all. 1: any key pressed
 
 	// For scanning
 	uint32_t current_row_state;
@@ -137,29 +137,144 @@ uint8_t scanMatrixTest() {
 	return key_pressed;
 }
 
-uint8_t isModifierKey(uint8_t key) { 
-	if (key == KEY_RIGHT_GUI ||
-		key == KEY_RIGHT_ALT ||
-		key == KEY_RIGHT_SHIFT ||
-		key == KEY_RIGHT_CTRL ||
-		key == KEY_LEFT_GUI ||
-		key == KEY_LEFT_ALT ||
-		key == KEY_LEFT_SHIFT ||
-		key == KEY_LEFT_CTRL  ) {
-		return 1;
+uint8_t isModKey(uint8_t scan_result[NUM_ROWS][NUM_COLS]) {
+
+	uint8_t mod_key_byte = 0;
+
+	if (scan_result[2][11]) {
+		mod_key_byte |= KEY_LEFT_SHIFT;
+	}
+	if (scan_result[3][0]) {
+		// Left ctrl
+		mod_key_byte |= KEY_LEFT_CTRL;
+	}
+	if (scan_result[3][1]) {
+		// Left win
+		mod_key_byte |= KEY_LEFT_GUI;
+	}
+	if (scan_result[3][2]) {
+		// Left alt
+		mod_key_byte |= KEY_LEFT_ALT;
+	}
+	if (scan_result[2][0]) {
+		// Left shift
+		mod_key_byte |= KEY_LEFT_SHIFT;
+	}
+
+	return mod_key_byte;
+}
+
+uint8_t isFnKey(uint8_t scan_result[NUM_ROWS][NUM_COLS]) {
+	if (scan_result[3][3] == 1 || scan_result[3][7] == 1) {
+			return 2;	// fn up
+		} else if (scan_result[3][4] == 1) {
+			return 1;	// fn down
+		} else if (scan_result[3][10] == 1) {
+			return 3;	// fn
+		}
+		return 0;
+}
+
+// Evaluate on every keypress
+uint8_t capsWord(uint8_t scan_result[NUM_ROWS][NUM_COLS], uint8_t *caps_word, uint8_t fn) {
+
+	// Caps word pressed, toggle state
+	if (scan_result[2][11] == 1 && fn == 0) {
+		*caps_word ^= 1;	// Toggle caps word on state
+	}
+
+	int i;
+	// If normal keys not in the call list, set state to 0
+	for (i = 2; i < 8; i++) {
+		if (	(*caps_word == 1) &&
+				((HID_input_buffer[i] < 40) || 	// A-Z, 0-9, KEY_NONE
+				(HID_input_buffer[i] == KEY_MINUS) || 
+				(HID_input_buffer[i] == KEY_BACKSPACE) || 
+				(HID_input_buffer[i] == KEY_DELETE))
+		) {
+			*caps_word = 0;	
+		}
+	}	
+
+	// Set shift if caps word state is on (after toggling and checking for call list keys)
+	if (*caps_word == 1) {
+		HID_input_buffer[0] |= KEY_LEFT_SHIFT;
+	}
+
+
+	return 0;
+}
+
+// Evaluate on every keypress
+uint8_t keyLock(uint8_t scan_result[NUM_ROWS][NUM_COLS], uint8_t *key_locked, uint8_t *locked_key) {
+
+	if (scan_result[2][11] == 1) {
+		*key_locked ^= 1;	// Toggle key lock state
+
+		// Listen for input
+		if (*key_locked == 1) {
+			while (scanMatrix() == 0) {
+				LL_mDelay(20);	// Delay 20 ms
+			}
+			fillHidInputBuffer();
+			for (int i = 2; i < 8; i++) {
+				if (HID_input_buffer[i] != 0) {
+					*locked_key = HID_input_buffer[i];
+					break;
+				}
+			}
+		}
+	}
+
+	// Append locked key to buffer
+	if (*key_locked == 1) {
+		for (int i = 2; i < 8; i++) {
+			if (HID_input_buffer[i] == *locked_key) {
+				break;
+			}
+			if (HID_input_buffer[i] != 0) {
+				HID_input_buffer[i] = *locked_key;
+				break;
+			}
+		}
 	}
 	return 0;
 }
+
 void fillHidInputBuffer() {
-	int row, col;
+	int i, j;
+	uint8_t fn;
 	int count = 0;
 	uint8_t current_key, mod_key_pressed_at_all = 0, norm_key_pressed_at_all = 0;
 
-	for (row = 0; row < NUM_ROWS; row++) {
-		for (col = 0; col < NUM_COLS; col++) {
+	// Check fn layer keys to switch layers
+	fn = isFnKey(matrix_scan_result);	// 0 if no fn key, 1 if fn up, 2 if fn down, 3 if fn
+	int row_offset = fn * 4;
 
-			current_key = usb_keymap_layer1[row][col];
-			if (count >= 6) {
+	// Check mod keys
+/*
+	==========================================================================================================
+	========== NOTE: CHECKING MOD KEYS IN THIS METHOD ONLY WORKS IF THEY ARE PRESENT IN EVERY LAYER ==========
+								Otherwise, we need to check using the current_key
+	==========================================================================================================
+*/
+	uint8_t mod_key_byte = isModKey(matrix_scan_result);	// Mod key byte
+	if (mod_key_byte) {
+		mod_key_pressed_at_all = 1;		// Mark that a mod key was pressed
+		HID_input_buffer[0] = mod_key_byte;
+	} 
+
+	// Caps word: If caps lock is on, set shift 
+
+
+	// Check all other keys: Traverse matrix_scan_result
+	for (i = 0; i < NUM_ROWS; i++) {
+		for (j = 0; j < NUM_COLS; j++) {
+
+			current_key = usb_keymap[row_offset + i][j];		// Current key to be checked
+			
+			// Check buffer overflow
+			if (count >= 6) {					
 				HID_input_buffer[2] = KEY_ERR_OVF;
 				HID_input_buffer[3] = KEY_ERR_OVF;
 				HID_input_buffer[4] = KEY_ERR_OVF;
@@ -168,34 +283,89 @@ void fillHidInputBuffer() {
 				HID_input_buffer[7] = KEY_ERR_OVF;
 				return;
 			}
-			if (matrix_scan_result[row][col] == 1 && count < 6) {
 
-					// Current key down is modifier key
-				if (isModifierKey(current_key)) {
-					mod_key_pressed_at_all = 1;		// Mark that a mod key was pressed
-					HID_input_buffer[0] = current_key;
+			// Check all other keys (non-mod/fn keys)
+			if (
+				(matrix_scan_result[i][j] == 1) &&
+				(current_key != KEY_LEFT_CTRL) &&
+				//(current_key != KEY_LEFT_GUI) &&
+				//(current_key != KEY_LEFT_ALT) &&
+				(current_key != KEY_LEFT_SHIFT) &&
+				(current_key != KEY_NONE)
+			) {
+				// E and A conflict with KEY_LEFT_GUI and KEY_LEFT_ALT and must be checked manually
+				// Also every other modifier bit:
+				/*	#define KEY_LEFT_ALT    0x04
+					#define KEY_LEFT_GUI    0x08
+					#define KEY_RIGHT_CTRL  0x10
+					#define KEY_RIGHT_SHIFT 0x20
+					#define KEY_RIGHT_ALT   0x40
+					#define KEY_RIGHT_GUI   0x80
+				*/
+				// Check scan_result[][] directly
+				if (	current_key == 4 ||
+						current_key == 8 ||
+						current_key == 0x10 ||
+						current_key == 0x20 ||
+						current_key == 0x40 ||
+						current_key == 0x80
+					) {
+					if (matrix_scan_result[0][3] == 1) {
+						norm_key_pressed_at_all = 1;
+						HID_input_buffer[2 + count] = current_key;	// E or 3
+						count++;
+					}
+					if (matrix_scan_result[1][1] == 1) {
+						norm_key_pressed_at_all = 1;
+						HID_input_buffer[2 + count] = 4;	// A
+						count++;
+					}
+					if (matrix_scan_result[2][7] == 1) {
+						norm_key_pressed_at_all = 1;
+						HID_input_buffer[2 + count] = KEY_M;	// M
+						count++;
+					}
+					if (matrix_scan_result[0][7] == 1) {
+						norm_key_pressed_at_all = 1;
+						HID_input_buffer[2 + count] = 0x40;	// F7
+						count++;
+					}
+					if (matrix_scan_result[3][9] == 1) {
+						norm_key_pressed_at_all = 1;
+						HID_input_buffer[2 + count] = 0x80;	// KEY_VOL_UP
+						count++;
+					}
 				} else {
-					// Current key down is normal key
-					norm_key_pressed_at_all = 1;		// Mark that a mod key was pressed
+					// Not E or A
+					norm_key_pressed_at_all = 1;		// Mark that a normal key was pressed
 					HID_input_buffer[2 + count] = current_key;
+					count++;
 				}
-				count++;
-
-			}
-
-			if (!mod_key_pressed_at_all) {
-				HID_input_buffer[0] = 0;
-			}
-			if (!norm_key_pressed_at_all) {
-				HID_input_buffer[2] = 0;
-				HID_input_buffer[3] = 0;
-				HID_input_buffer[4] = 0;
-				HID_input_buffer[5] = 0;
-				HID_input_buffer[6] = 0;
-				HID_input_buffer[7] = 0;
 			}
 		}
 	}
+
+	// No keys pressed
+	if (!mod_key_pressed_at_all) {
+		HID_input_buffer[0] = 0;
+	}
+	if (!norm_key_pressed_at_all) {
+		HID_input_buffer[2] = 0;
+		HID_input_buffer[3] = 0;
+		HID_input_buffer[4] = 0;
+		HID_input_buffer[5] = 0;
+		HID_input_buffer[6] = 0;
+		HID_input_buffer[7] = 0;
+	}
+
+	// If SHIFT is tapped, send a QUOTE key
+	if (mod_key_byte == KEY_LEFT_SHIFT && !norm_key_pressed_at_all) {
+		HID_input_buffer[2] = KEY_QUOTE;
+		//HID_input_buffer[0] = 0;	// We want double quotes
+	}
+
+	// Caps word
+	capsWord(matrix_scan_result, &caps_word, fn);
 }
 
 void fillHidInputReport() {
