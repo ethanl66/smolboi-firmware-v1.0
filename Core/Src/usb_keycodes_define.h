@@ -25,7 +25,7 @@
 	// Key Scan Codes: Last 6 bytes of HID report
 	#define KEY_NONE		 0
 	#define KEY_ERR_OVF		 1		// Keyboard Error Roll Over - used for all slots if too many keys are pressed ("phantom key")
-	
+
 	#define KEY_A            4
 	#define KEY_B            5
 	#define KEY_C            6
@@ -127,5 +127,9 @@
 	#define KEYPAD_9         97
 	#define KEYPAD_0         98
 	#define KEYPAD_PERIOD    99
+
+	#define KEY_MUTE	    127
+	#define KEY_VOL_UP	    128
+	#define KEY_VOL_DOWN	129
 
 #endif /* SRC_USB_KEYCODES_DEFINE_H_ */
