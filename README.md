@@ -13,6 +13,7 @@ PCB files can be found [here](https://github.com/ethanl66/smol-boi).
 ## Features
 
 - Matrix scanning to detect key presses and key releases
+- Maps keypresses to a custom 4-layer keymap
 - Generates HID Input Report packets and sends through USB to computer
 - Primitive debouncing
 
