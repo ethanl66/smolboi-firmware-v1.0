@@ -20,8 +20,9 @@ Currently in development:
 - Multilayered keymaps
 - More advanced debouncing algorithm
 - Explicit auto-repeat mechanism
+- Cool custom key functions e.g. caps word, tap `SHIFT` for `"`, key lock
 
 ## Acknowledgments
 
-- Made possible by the plentiful STM32 resource available
+- Made possible by the plentiful STM32 resources available
 - Datasheets! Reference manuals!
